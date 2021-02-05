@@ -30,6 +30,10 @@ const generateId = () => {
 	return Math.floor(Math.random() * Math.floor(1000000))
 }
 
+const unknownEndpoint = (request, response) => {
+	response.status(404).send({ error: 'unknown endpoint' })
+}
+
 app.post('/api/persons', (req, res) => {
 	const body = req.body
 
@@ -86,6 +90,8 @@ app.delete('/api/persons/:id', (req, res) => {
 
 	res.status(204).end()
 })
+
+app.use(unknownEndpoint)
 
 const PORT = 3001
 app.listen(PORT, () => console.log(`server is running on port ${PORT}`))
