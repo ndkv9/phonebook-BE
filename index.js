@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 
+app.use(express.json())
+
 let persons = [
 	{
 		name: 'Arto Hellas',
@@ -23,6 +25,34 @@ let persons = [
 		id: 4,
 	},
 ]
+
+const generateId = () => {
+	return Math.floor(Math.random() * Math.floor(1000000))
+}
+
+app.post('/api/persons', (req, res) => {
+	const body = req.body
+
+	if (!body.name || !body.number) {
+		return res.status(400).json({
+			error: 'missing name or number',
+		})
+	}
+
+	if (persons.map(person => person.name).includes(body.name)) {
+		return res.status(400).json({ error: 'name must be unique' })
+	}
+
+	const person = {
+		name: body.name,
+		number: body.number,
+		id: generateId(),
+	}
+
+	persons = persons.concat(person)
+
+	res.json(person)
+})
 
 app.get('/', (req, res) => {
 	res.send('<h3>Welcome!</h3>')
