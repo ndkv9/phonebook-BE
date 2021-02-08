@@ -19,6 +19,7 @@ const unknownEndpoint = (request, response) => {
 	response.status(404).send({ error: 'unknown endpoint' })
 }
 
+// create new entry that is saved to the DB
 app.post('/api/persons', (req, res) => {
 	const body = req.body
 
@@ -28,22 +29,15 @@ app.post('/api/persons', (req, res) => {
 		})
 	}
 
-	if (persons.map(person => person.name).includes(body.name)) {
-		return res.status(400).json({ error: 'name must be unique' })
-	}
-
-	const person = {
+	const person = new Person({
 		name: body.name,
 		number: body.number,
-		id: generateId(),
-	}
+	})
 
-	persons = persons.concat(person)
-
-	res.json(person)
+	person.save().then(savedPerson => res.json(savedPerson))
 })
 
-// fetching all phonebook entries
+// fetching all phonebook entries from DB
 app.get('/api/persons', (req, res) => {
 	Person.find({}).then(persons => res.json(persons))
 })
