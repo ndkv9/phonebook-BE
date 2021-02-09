@@ -69,5 +69,17 @@ app.delete('/api/persons/:id', (req, res, next) => {
 
 app.use(unknownEndpoint)
 
+const errorHandler = (error, req, res, next) => {
+	console.error(error)
+
+	if (error.name === 'CastError') {
+		res.status(400).send({ error: 'malformatted id' })
+	}
+
+	next(error)
+}
+
+app.use(errorHandler)
+
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => console.log(`server is running on port ${PORT}`))
