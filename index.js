@@ -38,25 +38,25 @@ app.post('/api/persons', (req, res) => {
 })
 
 // fetching all phonebook entries from DB
-app.get('/api/persons', (req, res) => {
-	Person.find({}).then(persons => res.json(persons))
+app.get('/api/persons', (req, res, next) => {
+	Person.find({})
+		.then(persons => res.json(persons))
+		.catch(err => next(err))
 })
 
-app.get('/info', (req, res) => {
-	res.send(`<p>Phonebook has info for ${persons.length} people</p>
-  ${new Date().toString()}
-  `)
-})
+// fetching a single phonebook entry
+app.get('/api/persons/:id', (req, res, next) => {
+	const id = req.params.id
 
-app.get('/api/persons/:id', (req, res) => {
-	const id = Number(req.params.id)
-	const person = persons.find(person => person.id === id)
-
-	if (!person) {
-		res.status(404).end()
-	}
-
-	res.json(person)
+	Person.findById(id)
+		.then(result => {
+			if (result) {
+				res.json(result)
+			} else {
+				throw Error('nonexist id')
+			}
+		})
+		.catch(err => next(err))
 })
 
 // delete phonebook entry from DB base on its id
@@ -74,6 +74,8 @@ const errorHandler = (error, req, res, next) => {
 
 	if (error.name === 'CastError') {
 		res.status(400).send({ error: 'malformatted id' })
+	} else if (error.message === 'nonexist id') {
+		res.status(404).send({ error: 'nonexist id' })
 	}
 
 	next(error)
