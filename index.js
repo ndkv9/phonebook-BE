@@ -59,12 +59,12 @@ app.get('/api/persons/:id', (req, res) => {
 	res.json(person)
 })
 
-app.delete('/api/persons/:id', (req, res) => {
-	const id = Number(req.params.id)
-	const personToDelete = persons.find(person => person.id === id)
-	persons = persons.filter(p => p.id !== personToDelete.id)
-
-	res.status(204).end()
+// delete phonebook entry from DB base on its id
+app.delete('/api/persons/:id', (req, res, next) => {
+	const id = req.params.id
+	Person.findByIdAndRemove(id)
+		.then(result => res.status(204).end())
+		.catch(err => next(err))
 })
 
 app.use(unknownEndpoint)
