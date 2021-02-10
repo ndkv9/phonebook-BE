@@ -20,11 +20,11 @@ const unknownEndpoint = (request, response) => {
 }
 
 // create new entry that is saved to the DB
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
 	const body = req.body
 
 	if (!body.name || !body.number) {
-		return res.status(400).json({
+		return res.status(400).send({
 			error: 'missing name or number',
 		})
 	}
@@ -34,7 +34,10 @@ app.post('/api/persons', (req, res) => {
 		number: body.number,
 	})
 
-	person.save().then(savedPerson => res.json(savedPerson))
+	person
+		.save()
+		.then(result => res.json(result))
+		.catch(err => next(err))
 })
 
 // fetching all phonebook entries from DB
@@ -56,6 +59,18 @@ app.get('/api/persons/:id', (req, res, next) => {
 				throw Error('nonexist id')
 			}
 		})
+		.catch(err => next(err))
+})
+
+// update phonebook entry's number
+app.put('/api/persons/:id', (req, res, next) => {
+	const body = req.body
+	const newPerson = {
+		name: body.name,
+		number: body.number,
+	}
+	Person.findByIdAndUpdate(req.params.id, newPerson, { new: true })
+		.then(updatedPerson => res.json(updatedPerson))
 		.catch(err => next(err))
 })
 
