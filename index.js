@@ -47,6 +47,15 @@ app.get('/api/persons', (req, res, next) => {
 		.catch(err => next(err))
 })
 
+// getting info
+app.get('/api/persons/info', (req, res, next) => {
+	Person.find({})
+		.then(persons =>
+			res.send(`Phonebook has info of ${persons.length} persons`)
+		)
+		.catch(err => next(err))
+})
+
 // fetching a single phonebook entry
 app.get('/api/persons/:id', (req, res, next) => {
 	const id = req.params.id
